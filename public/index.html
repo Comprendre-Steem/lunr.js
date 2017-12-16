@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+  <head>
+    <title>Lunr.js - Demo App</title>
+    <base href="/" />
+    <meta charset="UTF-8">
+    <meta id="viewport" name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css">
+    <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <script src="js/lunr.js"></script>
+    <style>
+      hr { margin: 40px 0; }
+      h3 { margin-bottom: 20px; }
+    </style>
+  </head>
+
+  <body>
+    <div id="vm">
+      <input v-model="keywords" placeholder="What are you looking for?" size="125">
+      <button @click="search" value="Search">Search</button>
+
+      <search-results
+        v-for="item in results"
+        v-bind:result="item"
+        v-bind:key="item.ID">
+      </search-results>
+    </div>
+
+    <!-- Starts the application -->
+    <script src="js/App.js"></script>
+  </body>
+
+</html>
