@@ -179,4 +179,4 @@ Vue.component('search-results', {
 
 # Live Demo
 
-A live demo is available on [search.comprendre-steem.surge.sh](search.comprendre-steem.surge.sh)
+A live demo is available on [http://search.comprendre-steem.surge.sh](http://search.comprendre-steem.surge.sh)
