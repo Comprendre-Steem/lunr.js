@@ -32,7 +32,14 @@ var lunr_data = (function() {
 
 // ROUTER 
  
-const Home = { template: '#page-home' }; 
+const Home = { 
+  template: '#page-home',
+  data: function () {
+    return {
+      keywords: []
+    }
+  }
+ }; 
 const Search = { template: '#page-search' }; 
  
 const routes = [ 
@@ -44,17 +51,15 @@ const router = new VueRouter({
   routes 
 }); 
 
+// Component to trigger the search (invisible)
 let searching = Vue.component('searching', {
-  template: '<div id="searching"><slot></slot></div>',
+  template: '<div id="searching"/>',
   mounted() {
-    console.log("searching...");
-    this.$root.$data.keywords = this.$route.query.q;
-    this.$root.search();
+    this.$root.search(this.$route.query.q);
   }
 });
 
 // Define behavior for search results
-
 let searchResult = Vue.component('search-result', {
   props: ['result'],
   template: '#result-template',
@@ -76,16 +81,18 @@ var app = new Vue({
   router,
   el: '#app',
   data: {
-    keywords: '',
     index: lunr_idx,
     posts: lunr_data,
     results: []
   },
   components: { searching, searchResult },
   methods: {
-    search() {
-      console.log("Searching for " + this.keywords);
-      hits = this.index.search(this.keywords);
+    goto(keywords) {
+      this.$router.push({name: 'search', query: { q: keywords }})
+    },
+    search(keywords) {
+      console.log("Searching for " + keywords);
+      hits = this.index.search(keywords);
       // Extracts referencs (IDs)
       var refs = new Array;
       for(var o in hits) {
@@ -93,7 +100,6 @@ var app = new Vue({
       }
       // Find corresponding posts
       this.results = this.posts.filter(entry => refs.includes(entry.ID));
-      this.$router.push({name: 'search', query: { q: this.keywords }})
     }
   }
 });

@@ -24,15 +24,14 @@
     <div id="app">
       <router-link :to="{ name : 'home' }">Go to Home</router-link>
       <!--router-link :to="{ name : 'search', query: { q: 'test'}}">Go to Search</router-link-->
-    
       <router-view></router-view>
     </div>
   </body>
 
   <script type="text/x-template" id="page-home"> 
     <div>
-      <input v-model="$parent.keywords" placeholder="What are you looking for?" size="30">
-      <button @click="$parent.search" value="Search">Search</button>
+      <input v-model="keywords" placeholder="What are you looking for?" size="30">
+      <button @click="$root.goto(keywords)" value="Search">Search</button>
     </div>
   </script>
 
@@ -40,7 +39,7 @@
     <div>
       <searching/>
       <search-result
-        v-for="item in $parent.results"
+        v-for="item in $root.results"
         v-bind:result="item"
         v-bind:key="item.ID">
       </search-result>
