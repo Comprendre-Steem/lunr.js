@@ -34,4 +34,13 @@
     <script src="js/App.js"></script>
   </body>
 
+  <script type="text/x-template" id="result-template"> 
+
+    <li :id="result.ID">
+      <img :src="coverUrl"/>
+      <a :href="postUrl">{{ result.title }}</a> 
+      by <a :href="authorUrl">@{{ result.author }}</a>
+    </li>
+  </script>
+
 </html>

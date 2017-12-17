@@ -33,7 +33,7 @@ var lunr_data = (function() {
 // Define behavior for search results
 Vue.component('search-results', {
   props: ['result'],
-  template: '<li>{{ result.ID }} - <img :src="coverUrl"/> <a :href="postUrl">{{ result.title }}</a> by <a :href="authorUrl">@{{ result.author }}</a></li>',
+  template: '#result-template',
   computed: {
     postUrl: function() {
       return this.authorUrl + '/' + this.result.permlink;
