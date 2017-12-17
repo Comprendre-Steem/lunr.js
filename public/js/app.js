@@ -40,41 +40,76 @@ const Home = {
     }
   }
  }; 
+
 const Search = { template: '#page-search' }; 
+
+const Post = { 
+  template: '#page-post'
+}; 
  
 const routes = [ 
   { path: '/', name: 'home', component: Home }, 
-  { path: '/search', name: 'search', component: Search } 
+  { path: '/search', name: 'search', component: Search },
+  { path: '/post', name: 'post', component: Post }
 ]; 
  
 const router = new VueRouter({ 
   routes 
 }); 
 
-// Component to trigger the search (invisible)
-let searching = Vue.component('searching', {
-  template: '<div id="searching"/>',
+// COMPONENTS
+
+// Component to trigger the search and display the results
+let search = Vue.component('search', {
+  template: '#search',
+  methods: {
+    postUrl(result) {
+      return this.authorUrl(result) + '/' + result.permlink;
+    },
+    authorUrl(result, prefix="http://www.steemit.com/") {
+      return prefix + '@' + result.author;
+    },
+    coverUrl(result, height=60, width=60) {
+      return 'https://steemitimages.com/' + height + 'x' + width + '/' + result.cover_image_url;
+    }
+  },
   mounted() {
-    this.$root.search(this.$route.query.q);
+    this.$root.searchExecute(this.$route.query.q);
   }
 });
 
-// Define behavior for search results
-let searchResult = Vue.component('search-result', {
-  props: ['result'],
-  template: '#result-template',
-  computed: {
-    postUrl() {
-      return this.authorUrl + '/' + this.result.permlink;
-    },
-    authorUrl() {
-      return 'http://www.steemit.com/' + '@' + this.result.author;
-    },
-    coverUrl() {
-      return 'https://steemitimages.com/60x60/' + this.result.cover_image_url;
+let post = Vue.component('post', {
+  template: '#post',
+  data() {
+    return {
+      author: null,
+      permlink: null,
+      data: null,
     }
+  },
+  methods: {
+
+  },
+  mounted() {
+    this.author = this.$route.query.author;
+    this.permlink = this.$route.query.permlink;
+
+    var body = "{\"jsonrpc\": \"2.0\", \"method\": \"get_content\", \"params\" : [\"" + this.author + "\",\"" + this.permlink + "\"], \"id\": 1}"
+
+    this.$http.post('https://steemd.steemit.com', body).then(
+      response => {
+        this.data = response.body
+        console.log(this.data.result)
+        if (this.data != null && this.data.result != null) {
+          var converter = new showdown.Converter()
+          $("#post-body").html(converter.makeHtml(this.data.result.body))
+        }
+      }, 
+      response => {
+        console.log("Error while getting data from steemd", this.author, this.permlink)
+      });
   }
-})
+});
 
 // Initialize the Vue Model
 var app = new Vue({
@@ -85,12 +120,12 @@ var app = new Vue({
     posts: lunr_data,
     results: []
   },
-  components: { searching, searchResult },
+  components: { search },
   methods: {
-    goto(keywords) {
+    search(keywords) {
       this.$router.push({name: 'search', query: { q: keywords }})
     },
-    search(keywords) {
+    searchExecute(keywords) {
       console.log("Searching for " + keywords);
       hits = this.index.search(keywords);
       // Extracts referencs (IDs)

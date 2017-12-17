@@ -7,11 +7,14 @@
     <meta charset="UTF-8">
     <meta id="viewport" name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css">
     <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.8.5/showdown.min.js"></script>
+    <!-- vue JS -->
     <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/vue-resource@1.3.4/dist/vue-resource.js"></script>
     <script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
+    <!-- lunr.js -->
     <script src="js/lunr.js"></script>
     <style>
       hr { margin: 40px 0; }
@@ -20,38 +23,50 @@
   </head>
 
   <body>
-
     <div id="app">
       <router-link :to="{ name : 'home' }">Go to Home</router-link>
-      <!--router-link :to="{ name : 'search', query: { q: 'test'}}">Go to Search</router-link-->
+      <router-link :to="{ name : 'search', query: { q: 'test'}}">Go to Search</router-link>
+      <router-link :to="{ name : 'post', query: { author: 'oroger', permlink: 'showcase-how-to-integrate-steemconnect-easily-in-your-project-using-vuejs-v2'}}">Show post</router-link>
       <router-view></router-view>
     </div>
   </body>
 
+  <!-- ROUTER PAGES -->
+
   <script type="text/x-template" id="page-home"> 
     <div>
-      <input v-model="keywords" placeholder="What are you looking for?" size="30">
-      <button @click="$root.goto(keywords)" value="Search">Search</button>
+      <input v-model="keywords" placeholder="Recherche..." size="30">
+      <button @click="$root.search(keywords)" value="Search">Search</button>
     </div>
   </script>
 
   <script type="text/x-template" id="page-search"> 
-    <div>
-      <searching/>
-      <search-result
-        v-for="item in $root.results"
-        v-bind:result="item"
-        v-bind:key="item.ID">
-      </search-result>
+    <search :query="this.$route.query.q"></search>
+  </script>
+
+  <script type="text/x-template" id="page-post"> 
+    <post :author="this.$route.query.author" :permlink="this.$route.query.permlink"></post>
+  </script>
+
+  <!-- COMPONENTS -->
+
+  <script type="text/x-template" id="search">
+    <div id="search">
+      <li v-for="result in $root.results" v-bind:result="result" v-bind:key="result.ID" :id="result.ID">
+        <img :src="coverUrl(result)"/>
+        <a :href="postUrl(result)">{{ result.title }}</a>
+        by <a :href="authorUrl(result)">@{{ result.author }}</a>
+      </li>
     </div>
   </script>
 
-  <script type="text/x-template" id="result-template"> 
-    <li :id="result.ID">
-      <img :src="coverUrl"/>
-      <a :href="postUrl">{{ result.title }}</a> 
-      by <a :href="authorUrl">@{{ result.author }}</a>
-    </li>
+  <script type="text/x-template" id="post">
+    <div id="post">
+      Post @{{ author }}/{{ permlink }}
+
+      <div id="post-body"/>
+
+    </div>
   </script>
 
   <!-- Starts the application -->
