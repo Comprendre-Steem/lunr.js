@@ -26,7 +26,7 @@
     <div id="app">
       <router-link :to="{ name : 'home' }">Go to Home</router-link>
       <router-link :to="{ name : 'search', query: { q: 'test'}}">Go to Search</router-link>
-      <router-link :to="{ name : 'post', query: { author: 'oroger', permlink: 'showcase-how-to-integrate-steemconnect-easily-in-your-project-using-vuejs-v2'}}">Show post</router-link>
+      <router-link :to="{ name : 'post', params: { author: 'oroger', permlink: 'showcase-how-to-integrate-steemconnect-easily-in-your-project-using-vuejs-v2'}}">Show post</router-link>
       <router-view></router-view>
     </div>
   </body>
@@ -54,7 +54,7 @@
     <div id="search">
       <li v-for="result in $root.results" v-bind:result="result" v-bind:key="result.ID" :id="result.ID">
         <img :src="coverUrl(result)"/>
-        <a :href="postUrl(result)">{{ result.title }}</a>
+        <a :href="postUrl(result, '/#/')">{{ result.title }}</a>
         by <a :href="authorUrl(result)">@{{ result.author }}</a>
       </li>
     </div>
@@ -62,8 +62,8 @@
 
   <script type="text/x-template" id="post">
     <div id="post">
-      Post @{{ author }}/{{ permlink }}
-
+      Format : {{ metadata ? metadata['format'] : '' }}
+      <!-- TODO add other infos -->
       <div id="post-body"/>
 
     </div>

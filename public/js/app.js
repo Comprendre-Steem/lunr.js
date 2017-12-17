@@ -40,21 +40,17 @@ const Home = {
     }
   }
  }; 
-
 const Search = { template: '#page-search' }; 
-
-const Post = { 
-  template: '#page-post'
-}; 
- 
-const routes = [ 
-  { path: '/', name: 'home', component: Home }, 
-  { path: '/search', name: 'search', component: Search },
-  { path: '/post', name: 'post', component: Post }
-]; 
+const Post = { template: '#page-post' }; 
  
 const router = new VueRouter({ 
-  routes 
+  routes: [ 
+    { path: '/', name: 'home', component: Home }, 
+    { path: '/search', name: 'search', component: Search },
+    { path: '/@:author/:permlink', name: 'post', component: Post },
+    { path: '/:category/@:author/:permlink', name: 'post', component: Post }
+  ]
+  //, mode: 'history'
 }); 
 
 // COMPONENTS
@@ -63,8 +59,8 @@ const router = new VueRouter({
 let search = Vue.component('search', {
   template: '#search',
   methods: {
-    postUrl(result) {
-      return this.authorUrl(result) + '/' + result.permlink;
+    postUrl(result, prefix="http://www.steemit.com/") {
+      return this.authorUrl(result, prefix) + '/' + result.permlink;
     },
     authorUrl(result, prefix="http://www.steemit.com/") {
       return prefix + '@' + result.author;
@@ -85,24 +81,33 @@ let post = Vue.component('post', {
       author: null,
       permlink: null,
       data: null,
+      metadata: null
     }
   },
   methods: {
 
   },
   mounted() {
-    this.author = this.$route.query.author;
-    this.permlink = this.$route.query.permlink;
+    this.author = this.$route.params.author;
+    this.permlink = this.$route.params.permlink;
 
     var body = "{\"jsonrpc\": \"2.0\", \"method\": \"get_content\", \"params\" : [\"" + this.author + "\",\"" + this.permlink + "\"], \"id\": 1}"
 
     this.$http.post('https://steemd.steemit.com', body).then(
       response => {
-        this.data = response.body
-        console.log(this.data.result)
-        if (this.data != null && this.data.result != null) {
-          var converter = new showdown.Converter()
-          $("#post-body").html(converter.makeHtml(this.data.result.body))
+
+        if (response.body != null && response.body.result != null) {
+          this.data = response.body.result
+          if (this.data != null) {
+            this.metadata = JSON.parse(this.data.json_metadata)
+
+            var html = this.data.body
+            if (this.metadata['format'].includes("markdown")) {
+              var converter = new showdown.Converter()
+              html = converter.makeHtml(this.data.body)
+            }
+            $("#post-body").html(html)
+          }
         }
       }, 
       response => {
