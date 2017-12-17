@@ -44,6 +44,15 @@ const router = new VueRouter({
   routes 
 }); 
 
+let searching = Vue.component('searching', {
+  template: '<div id="searching"><slot></slot></div>',
+  mounted() {
+    console.log("searching...");
+    this.$root.$data.keywords = this.$route.query.q;
+    this.$root.search();
+  }
+});
+
 // Define behavior for search results
 
 let searchResult = Vue.component('search-result', {
@@ -72,7 +81,7 @@ var app = new Vue({
     posts: lunr_data,
     results: []
   },
-  components: { searchResult },
+  components: { searching, searchResult },
   methods: {
     search() {
       console.log("Searching for " + this.keywords);
