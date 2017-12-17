@@ -48,8 +48,8 @@ Vue.component('search-results', {
 })
 
 // Initialize the Vue Model
-var vm = new Vue({
-  el: '#vm',
+var app = new Vue({
+  el: '#app',
   data: {
     keywords: '',
     index: lunr_idx,
