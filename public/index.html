@@ -10,7 +10,8 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css">
     <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
     <script src="js/lunr.js"></script>
     <style>
       hr { margin: 40px 0; }
@@ -19,23 +20,35 @@
   </head>
 
   <body>
-    <div id="vm">
-      <input v-model="keywords" placeholder="What are you looking for?" size="125">
-      <button @click="search" value="Search">Search</button>
 
+    <div id="app">
+      <router-link :to="{ name : 'home' }">Go to Home</router-link>
+      <router-link :to="{ name : 'search', query: { q: 'test'}}">Go to Search</router-link>
+      <router-view></router-view>
+    
+      <input v-model="keywords" placeholder="What are you looking for?" size="30">
+      <button @click="search" value="Search">Search</button>
+    </div>
+  </body>
+
+  <script type="text/x-template" id="page-home"> 
+    <div>
+      Home
+    </div>
+  </script>
+
+  <script type="text/x-template" id="page-search"> 
+    <div>
+      <div>1 {{ $route.query.q }}</div>
       <search-results
-        v-for="item in results"
+        v-for="item in store.state.results"
         v-bind:result="item"
         v-bind:key="item.ID">
       </search-results>
     </div>
-
-    <!-- Starts the application -->
-    <script src="js/App.js"></script>
-  </body>
+  </script>
 
   <script type="text/x-template" id="result-template"> 
-
     <li :id="result.ID">
       <img :src="coverUrl"/>
       <a :href="postUrl">{{ result.title }}</a> 
@@ -43,4 +56,6 @@
     </li>
   </script>
 
+  <!-- Starts the application -->
+  <script src="js/App.js"></script>
 </html>
