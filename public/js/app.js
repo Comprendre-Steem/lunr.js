@@ -30,6 +30,9 @@ var lunr_data = (function() {
     return posts;
 })();
 
+// init moment.js
+moment.locale('fr');
+
 // ROUTER 
  
 const Home = { 
@@ -40,14 +43,20 @@ const Home = {
     }
   }
  }; 
-const Search = { template: '#page-search' }; 
-const Post = { template: '#page-post' }; 
+
+const Search = { 
+  template: '#page-search'
+};
+
+const Post = { 
+  template: '#page-post' 
+}; 
  
 const router = new VueRouter({ 
   routes: [ 
     { path: '/', name: 'home', component: Home }, 
     { path: '/search', name: 'search', component: Search },
-    { path: '/@:author/:permlink', name: 'post', component: Post },
+    //{ path: '/@:author/:permlink', name: 'post', component: Post },
     { path: '/:category/@:author/:permlink', name: 'post', component: Post }
   ]
   //, mode: 'history'
@@ -60,7 +69,7 @@ let search = Vue.component('search', {
   template: '#search',
   methods: {
     postUrl(result, prefix="http://www.steemit.com/") {
-      return this.authorUrl(result, prefix) + '/' + result.permlink;
+      return prefix + result.url;
     },
     authorUrl(result, prefix="http://www.steemit.com/") {
       return prefix + '@' + result.author;
@@ -78,10 +87,10 @@ let post = Vue.component('post', {
   template: '#post',
   data() {
     return {
-      author: null,
-      permlink: null,
-      data: null,
-      metadata: null
+      author: "",
+      permlink: "",
+      data: {},
+      metadata: {}
     }
   },
   methods: {
@@ -95,7 +104,6 @@ let post = Vue.component('post', {
 
     this.$http.post('https://steemd.steemit.com', body).then(
       response => {
-
         if (response.body != null && response.body.result != null) {
           this.data = response.body.result
           if (this.data != null) {
@@ -123,7 +131,8 @@ var app = new Vue({
   data: {
     index: lunr_idx,
     posts: lunr_data,
-    results: []
+    results: [],
+    progress: 10
   },
   components: { search },
   methods: {
@@ -139,7 +148,13 @@ var app = new Vue({
           refs.push(hits[o].ref);
       }
       // Find corresponding posts
-      this.results = this.posts.filter(entry => refs.includes(entry.ID));
+      this.results = this.posts.filter(entry => refs.includes(entry.ID.toString()));;
+    },
+    since(value) {
+      if (value != null && value != '') {
+        return moment(value).fromNow();
+      }
+      return "";
     }
   }
 });

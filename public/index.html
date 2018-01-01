@@ -5,8 +5,13 @@
     <title>Lunr.js - Demo App</title>
     <base href="/" />
     <meta charset="UTF-8">
-    <meta id="viewport" name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+    <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.1/css/bulma.min.css">
+    <link rel="stylesheet" type="text/css" href="../css/style.css">
+
     <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.8.5/showdown.min.js"></script>
@@ -14,8 +19,11 @@
     <script src="https://unpkg.com/vue/dist/vue.js"></script>
     <script src="https://unpkg.com/vue-resource@1.3.4/dist/vue-resource.js"></script>
     <script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue2-filters/dist/vue2-filters.min.js"></script>
     <!-- lunr.js -->
     <script src="js/lunr.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/locale/fr.js"></script>
     <style>
       hr { margin: 40px 0; }
       h3 { margin-bottom: 20px; }
@@ -24,19 +32,100 @@
 
   <body>
     <div id="app">
-      <router-link :to="{ name : 'home' }">Go to Home</router-link>
-      <router-link :to="{ name : 'search', query: { q: 'test'}}">Go to Search</router-link>
-      <router-link :to="{ name : 'post', params: { author: 'oroger', permlink: 'showcase-how-to-integrate-steemconnect-easily-in-your-project-using-vuejs-v2'}}">Show post</router-link>
-      <router-view></router-view>
+
+      <nav class="navbar">
+        <div class="navbar-brand">
+          <a class="navbar-item" href="http://comprendre-steem.fr/">
+            <img src="http://comprendre-steem.fr/img/favicon.png" alt="Comprendre-Steem - Toutes les ressources pour bien démarrer avec Steem" height="28">
+            <strong>Comprendre-Steem.fr</strong>
+          </a>
+
+          <button class="button navbar-burger" data-target="menu">
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+        </div>
+
+        <div id="menu" class="navbar-menu">
+          <div class="navbar-start">
+            <router-link class="navbar-item" :to="{ name : 'home' }">
+              Nouvelle recherche
+            </router-link>
+          </div>
+
+          <div class="navbar-end">
+            <div class="navbar-item">
+              <div class="field is-grouped">
+                <p class="control">
+                  <a class="bd-tw-button button" target="_blank" href="https://discord.gg/xt3G8Gy">
+                    <span class="icon">
+                      <i class="fa fa-comments-o"></i>
+                    </span>
+                    <span>
+                      Discord
+                    </span>
+                  </a>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+<!-- 
+      <nav class="level">
+        <p class="level-item has-text-centered">
+          <router-link class="link is-info" :to="{ name : 'home' }">Home</router-link>
+        </p>
+        <p class="level-item has-text-centered">
+          <router-link :to="{ name : 'search', query: { q: 'test'}}">Recherche</router-link>
+        </p>
+        <p class="level-item has-text-centered">
+          <router-link :to="{ name : 'post', params: { author: 'oroger', permlink: 'showcase-how-to-integrate-steemconnect-easily-in-your-project-using-vuejs-v2'}}">Article</router-link>
+        </p>
+        <p class="level-item has-text-centered">
+          <a class="link is-info">Profil</a>
+        </p>
+      </nav>
+ -->
+
+      <section>
+       <div class="container is-horizontal">
+          <div>
+            <router-view></router-view>
+          </div>
+        </div>
+      </section>
     </div>
   </body>
 
   <!-- ROUTER PAGES -->
 
-  <script type="text/x-template" id="page-home"> 
-    <div>
-      <input v-model="keywords" placeholder="Recherche..." size="30">
-      <button @click="$root.search(keywords)" value="Search">Search</button>
+  <script type="text/x-template" id="page-home">
+    <div class="hero-body">
+      <div class="container has-text-centered">
+        <div class="column is-6 is-offset-3">
+<!--           <h1 class="title">
+            Articles #fr
+          </h1> -->
+          <h2 class="subtitle">
+            Recherchez par mots-clés sur les titres, tags et auteurs du tag #fr
+          </h2>
+          <div class="box">
+            <div class="field is-grouped">
+              <p class="control is-expanded">
+                <input v-model="keywords" @keyup.enter="$root.search(keywords)" class="input" type="text" placeholder="Recherche...">
+              </p>
+              <p class="control">
+                <a @click.prevent="$root.search(keywords)" class="button is-info">
+                  Rechercher
+                </a>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </script>
 
@@ -52,23 +141,86 @@
 
   <script type="text/x-template" id="search">
     <div id="search">
-      <li v-for="result in $root.results" v-bind:result="result" v-bind:key="result.ID" :id="result.ID">
-        <img :src="coverUrl(result)"/>
-        <a :href="postUrl(result, '/#/')">{{ result.title }}</a>
-        by <a :href="authorUrl(result)">@{{ result.author }}</a>
-      </li>
+      <br/>
+      <div class="box" v-for="result in limitBy($root.results, 250)" v-bind:result="result" v-bind:key="result.ID" :id="result.ID">
+        <article class="media">
+          <div class="media-left">
+            <figure class="image" style="width:96px">
+              <img :src="coverUrl(result, 96, 96)" alt="Image">
+            </figure>
+          </div>
+          <div class="media-content">
+            <div class="content">
+              <p>
+                <strong><a :href="authorUrl(result)">@{{ result.author }}</a></strong> <small>{{ $root.since(result.created) }}</small>
+                <br/>
+                <a :href="postUrl(result, '/#')">{{ result.title | truncate(60) }}</a>
+              </p>
+              <p>
+                <span v-for="tag in JSON.parse(result.tags)" v-bind:tag="tag" v-bind:key="tag">
+                  <span class="tag is-light">
+                     {{ tag }}
+                  </span>
+                  &nbsp;
+                </span>
+              
+              | &nbsp;
+
+                <span class="tag is-link">
+                  <a :href="postUrl(result, 'https://steemd.com')" target="_blank">steemd.com</a>&nbsp;
+                </span>
+                <span class="tag is-link">
+                  <a :href="postUrl(result, 'https://steemit.com')" target="_blank">steemit.com</a>&nbsp;
+                </span>
+                <span class="tag is-link">
+                  <a :href="postUrl(result, 'https://busy.org')" target="_blank">busy.org</a>
+                </span>
+              </p>
+
+            </div>
+<!--             <nav class="level is-mobile">
+              <div class="level-left">
+                <a class="level-item">
+                  <span class="icon is-small"><i class="fa fa-reply"></i></span>
+                </a>
+                <a class="level-item">
+                  <span class="icon is-small"><i class="fa fa-retweet"></i></span>
+                </a>
+                <a class="level-item">
+                  <span class="icon is-small"><i class="fa fa-heart"></i></span>
+                </a>
+              </div>
+            </nav> -->
+          </div>
+        </article>
+      </div>
+      <br/>
     </div>
   </script>
 
   <script type="text/x-template" id="post">
-    <div id="post">
-      Format : {{ metadata ? metadata['format'] : '' }}
-      <!-- TODO add other infos -->
-      <div id="post-body"/>
 
+    <!-- START ARTICLE -->
+    <div class="card article" id="post">
+      <div class="card-content">
+        <div class="media">
+          <div class="media-content has-text-centered">
+            <p class="title article-title">{{ data.title }}</p>
+            <p class="subtitle is-6 article-subtitle">
+              @{{ data.author }} on {{ $root.since(data.created) }} 
+              (Votes : {{ data.net_votes }} / Commentaires : {{ data.children }})
+              <!-- Format : {{ metadata ? metadata['format'] : '' }} -->
+            </p>
+          </div>
+        </div>
+
+        <div id="post-body"></div>
+      </div>
     </div>
+    <!-- END ARTICLE -->
   </script>
 
   <!-- Starts the application -->
+  <script src="js/bulma.js"></script>
   <script src="js/app.js"></script>
 </html>

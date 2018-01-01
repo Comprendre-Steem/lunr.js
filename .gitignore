@@ -1,2 +1,12 @@
 
 node_modules/
+
+inbox/
+
+build-index\.sh
+
+export-data\.js
+
+index\.json
+
+posts-fr\.json
